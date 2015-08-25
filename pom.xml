@@ -40,8 +40,8 @@
     <jube.version>2.2.0</jube.version>
     <docker.maven.plugin.version>0.13.2</docker.maven.plugin.version>
     <camel.version>2.15.2</camel.version>
-    <karaf.version>4.0.0</karaf.version>
-    <karaf.plugin.version>4.0.1-SNAPSHOT</karaf.plugin.version>
+    <karaf.version>2.4.3</karaf.version>
+    <karaf.plugin.version>4.0.1</karaf.plugin.version>
 
     <!-- karaf4 custom assembly for karaf4-sti -->
     <docker.env.KARAF4_ASSEMBLY>${project.artifactId}-${project.version}.tar.gz</docker.env.KARAF4_ASSEMBLY>
@@ -90,19 +90,18 @@
       <!-- scope is compile so all features (there is only one) are installed into startup.properties,
       and the feature repo itself is not added in etc/org.apache.karaf.features.cfg file -->
       <groupId>org.apache.karaf.features</groupId>
-      <artifactId>framework</artifactId>
-      <version>${karaf.version}</version>
+      <artifactId>static</artifactId>
+      <version>${karaf.plugin.version}</version>
       <type>kar</type>
     </dependency>
     <dependency>
       <!-- scope is runtime so the feature repo is listed in etc/org.apache.karaf.features.cfg file,
       and features will installed into the system directory if specify in the plugin configuration -->
-      <groupId>org.apache.karaf.features</groupId>
+      <groupId>org.apache.karaf.assemblies.features</groupId>
       <artifactId>standard</artifactId>
       <version>${karaf.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <!-- scope is runtime so the feature repo is listed in etc/org.apache.karaf.features.cfg file,
@@ -112,7 +111,6 @@
       <version>${camel.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 
@@ -136,7 +134,7 @@
             <!-- do not include build output directory -->
             <includeBuildOutputDirectory>false</includeBuildOutputDirectory>
             <!-- no startupFeatures -->
-            <bootFeatures>
+            <startupFeatures>
 <!--
               <feature>wrap</feature>
               <feature>shell</feature>
@@ -153,22 +151,24 @@
               <feature>package</feature>
               <feature>service</feature>
 -->
+              <feature>karaf-framework</feature>
               <feature>jaas</feature>
               <feature>management</feature>
-              <feature>log</feature>
-              <feature>system</feature>
               <feature>aries-blueprint</feature>
 <!-- commented because it pulls in bundles like camel-commands, which should be optional
               <feature>camel-core</feature>
               <feature>camel-blueprint</feature>
 -->
-            </bootFeatures>
-            <bootBundles>
-              <bootBundle>mvn:org.apache.camel/camel-core/${camel.version}</bootBundle>
-              <bootBundle>mvn:org.apache.camel/camel-catalog/${camel.version}</bootBundle>
-              <bootBundle>mvn:org.apache.camel/camel-blueprint/${camel.version}</bootBundle>
+            </startupFeatures>
+            <startupBundles>
+              <bundle>mvn:org.apache.camel/camel-core/${camel.version}</bundle>
+              <bundle>mvn:org.apache.camel/camel-catalog/${camel.version}</bundle>
+              <bundle>mvn:org.apache.camel/camel-blueprint/${camel.version}</bundle>
               <bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
-            </bootBundles>
+            </startupBundles>
+            <libraries>
+              <library>mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.boot/${karaf.version};type:=boot;export:=true;delegate:=true</library>
+            </libraries>
           </configuration>
         </plugin>
       </plugins>
